@@ -15,9 +15,6 @@
  */
 package com.example.android.pets;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -29,41 +26,22 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.Toast;
-
-import com.example.android.pets.data.PetContract.PetEntry;
-import com.example.android.pets.data.PetDbHelper;
-
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_BREED;
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_GENDER;
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_NAME;
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_WEIGHT;
 
 /**
  * Allows user to create a new pet or edit an existing one.
  */
 public class EditorActivity extends AppCompatActivity {
 
-    public static final String LOG_TAG = EditorActivity.class.getSimpleName();
-
-    /**
-     * EditText field to enter the pet's name
-     */
+    /** EditText field to enter the pet's name */
     private EditText mNameEditText;
 
-    /**
-     * EditText field to enter the pet's breed
-     */
+    /** EditText field to enter the pet's breed */
     private EditText mBreedEditText;
 
-    /**
-     * EditText field to enter the pet's weight
-     */
+    /** EditText field to enter the pet's weight */
     private EditText mWeightEditText;
 
-    /**
-     * EditText field to enter the pet's gender
-     */
+    /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
 
     /**
@@ -71,8 +49,6 @@ public class EditorActivity extends AppCompatActivity {
      * 0 for unknown gender, 1 for male, 2 for female.
      */
     private int mGender = 0;
-
-    private PetDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +60,7 @@ public class EditorActivity extends AppCompatActivity {
         mBreedEditText = (EditText) findViewById(R.id.edit_pet_breed);
         mWeightEditText = (EditText) findViewById(R.id.edit_pet_weight);
         mGenderSpinner = (Spinner) findViewById(R.id.spinner_gender);
+
         setupSpinner();
     }
 
@@ -109,11 +86,11 @@ public class EditorActivity extends AppCompatActivity {
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.gender_male))) {
-                        mGender = PetEntry.GENDER_MALE; // Male
+                        mGender = 1; // Male
                     } else if (selection.equals(getString(R.string.gender_female))) {
-                        mGender = PetEntry.GENDER_FEMALE; // Female
+                        mGender = 2; // Female
                     } else {
-                        mGender = PetEntry.GENDER_UNKNOWN; // Unknown
+                        mGender = 0; // Unknown
                     }
                 }
             }
@@ -140,13 +117,7 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                if (mNameEditText.getText().toString().matches("") ||
-                        mWeightEditText.getText().toString().matches("")) {
-                    Toast.makeText(getApplicationContext(), "You have to fill all the infos ", Toast.LENGTH_LONG).show();
-                } else {
-                    insertPetData();
-                    NavUtils.navigateUpFromSameTask(this);
-                }
+                // Do nothing for now
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -159,20 +130,5 @@ public class EditorActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void insertPetData() {
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_PET_NAME, mNameEditText.getText().toString().trim());
-        values.put(COLUMN_PET_BREED, mBreedEditText.getText().toString().trim());
-        values.put(COLUMN_PET_WEIGHT, Integer.parseInt(mWeightEditText.getText().toString().trim()));
-        values.put(COLUMN_PET_GENDER, mGender);
-
-        Uri newUriWithRowId = getContentResolver().insert(PetEntry.CONTENT_URI, values);
-        if (ContentUris.parseId(newUriWithRowId) == -1) {
-            Toast.makeText(getApplicationContext(), "an error occurred ", Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(), "Pet saved with row ID " + ContentUris.parseId(newUriWithRowId), Toast.LENGTH_LONG).show();
-        }
     }
 }

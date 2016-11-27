@@ -15,45 +15,24 @@
  */
 package com.example.android.pets;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import com.example.android.pets.data.PetContract;
-import com.example.android.pets.data.PetCursorAdapter;
-import com.example.android.pets.data.PetDbHelper;
-
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_BREED;
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_GENDER;
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_NAME;
-import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_WEIGHT;
-import static com.example.android.pets.data.PetContract.PetEntry.GENDER_FEMALE;
 
 /**
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
 
-    public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
-    TextView displayView;
-    private PetDbHelper mDbHelper;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-        //displayView = (TextView) findViewById(R.id.text_view_pet);
+
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -63,14 +42,6 @@ public class CatalogActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-        mDbHelper = new PetDbHelper(this);
-        displayDatabaseInfo();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        displayDatabaseInfo();
     }
 
     @Override
@@ -87,68 +58,13 @@ public class CatalogActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.action_insert_dummy_data:
-                insertDummyPetData();
-                displayDatabaseInfo();
+                // Do nothing for now
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                dropTable();
-                displayDatabaseInfo();
+                // Do nothing for now
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    private void dropTable() {
-        int deleted = getContentResolver().delete(PetContract.PetEntry.CONTENT_URI, null, null);
-        Toast.makeText(getApplicationContext(), "Deleting " + deleted, Toast.LENGTH_LONG).show();
-    }
-
-    private void insertDummyPetData() {
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_PET_NAME, "TOTO");
-        values.put(COLUMN_PET_BREED, "terrier");
-        values.put(COLUMN_PET_GENDER, GENDER_FEMALE);
-        values.put(COLUMN_PET_WEIGHT, 20);
-
-        Uri newUriWithRowId = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
-        Toast.makeText(getApplicationContext(), "Dummy Pet saved with row ID " + ContentUris.parseId(newUriWithRowId), Toast.LENGTH_LONG).show();
-    }
-
-    private void displayDatabaseInfo() {
-        // Define a projection that specifies which columns from the database
-        String[] projection = {
-                PetContract.PetEntry._ID,
-                PetContract.PetEntry.COLUMN_PET_NAME,
-                PetContract.PetEntry.COLUMN_PET_BREED,
-                PetContract.PetEntry.COLUMN_PET_GENDER,
-                PetContract.PetEntry.COLUMN_PET_WEIGHT
-        };
-
-        String sortOrderBy =
-                PetContract.PetEntry._ID + " ASC";
-
-        //we don't need to interact with the database directly from our Activity
-        //So, we use a ContentResolver instead
-        /*Cursor cursor = db.query(
-                PetContract.PetEntry.TABLE_NAME,
-                projection,                         //make it "null" to select all columns
-                null,
-                null,
-                null,
-                null,
-                sortOrderBy
-        );*/
-
-        Cursor cursor = getContentResolver().query(
-                PetContract.PetEntry.CONTENT_URI,
-                projection,                         //make it "null" to select all columns
-                null,
-                null,
-                sortOrderBy);
-
-        PetCursorAdapter petAdapter = new PetCursorAdapter(this, cursor);
-        ListView listView = (ListView) findViewById(R.id.list_view_pets);
-        listView.setAdapter(petAdapter);
     }
 }
