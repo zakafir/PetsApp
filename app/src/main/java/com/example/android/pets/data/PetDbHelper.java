@@ -39,6 +39,14 @@ public class PetDbHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Create a String that contains the SQL statement to create the pets table
+        //PRAGMA_TABLE_INFO(pets)
+        //CREATE TABLE pets (
+        // id INTEGER PRIMARY KEY AUTOINCREMENT,
+        // name TEXT NOT NULL,
+        // breed TEXT,
+        // gender INTEGER NOT NULL,
+        // weight INTEGER NOT NULL DEFAULT 0);
+
         String SQL_CREATE_PETS_TABLE = "CREATE TABLE " + PetEntry.TABLE_NAME + " ("
                 + PetEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + PetEntry.COLUMN_PET_NAME + " TEXT NOT NULL, "
