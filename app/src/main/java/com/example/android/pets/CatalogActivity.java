@@ -44,7 +44,6 @@ public class CatalogActivity extends AppCompatActivity {
 
     public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
     TextView displayView;
-    Cursor cursor;
     private PetDbHelper mDbHelper;
 
     @Override
@@ -114,7 +113,7 @@ public class CatalogActivity extends AppCompatActivity {
 
         // Perform this raw SQL query "SELECT * FROM pets"
         // to get a Cursor that contains all rows from the pets table.
-        cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME, null);
+        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME, null);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
