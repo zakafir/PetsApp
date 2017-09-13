@@ -117,13 +117,39 @@ public class CatalogActivity extends AppCompatActivity {
         //it's similar to .open terminal command to open or create a database
         SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
-        // Perform this raw SQL query "SELECT * FROM pets"
-        // to get a Cursor that contains all rows from the pets table.
-        Cursor cursor = db.rawQuery("SELECT * FROM " + PetContract.PetEntry.TABLE_NAME, null);
+        // Define a projection that specifies which columns from the database
+        String[] projection = {
+                PetContract.PetEntry._ID,
+                PetContract.PetEntry.COLUMN_PET_NAME,
+                PetContract.PetEntry.COLUMN_PET_BREED,
+                PetContract.PetEntry.COLUMN_PET_GENDER,
+                PetContract.PetEntry.COLUMN_PET_WEIGHT
+        };
+
+        String sortOrderBy =
+                PetContract.PetEntry._ID + " ASC";
+
+        Cursor cursor = db.query(
+                PetContract.PetEntry.TABLE_NAME,
+                projection,                         //make it "null" to select all columns
+                null,
+                null,
+                null,
+                null,
+                sortOrderBy
+        );
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
-            displayView.setText("Number of rows in pets database table: " + cursor.getCount());
+            displayView.setText("The pets table contains : " + cursor.getCount()+" pets. \n");
+                while (cursor.moveToNext()){
+                    displayView.append("\n _ID: "+cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry._ID)) +
+                            "\n -Name: "+cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)) +
+                            "\n -Breed: "+cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)) +
+                            "\n -Gender: "+cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER)) +
+                            "\n -Weight: "+cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)) +
+                            "\n ---------------------------------");
+                }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
