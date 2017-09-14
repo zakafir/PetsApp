@@ -2,7 +2,9 @@ package com.example.android.pets.data;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
 /**
@@ -15,6 +17,7 @@ public class PetProvider extends ContentProvider {
     public static final String LOG_TAG = PetProvider.class.getSimpleName();
 
     public PetDbHelper mDbHelper;
+    public UriMatcher mUriMatcher;
 
     /**
      * Initialize the provider and the database helper object.
@@ -31,6 +34,16 @@ public class PetProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
                         String sortOrder) {
+
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+        int a = mUriMatcher.match(uri);
+        switch (a){
+            case 1:
+                database.query(PetContract.PetEntry.TABLE_NAME,projection,selection,selectionArgs,null,null,sortOrder);
+                break;
+            case 2:
+                break;
+        }
         return null;
     }
 
