@@ -7,6 +7,7 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * Created by zakaria_afir on 13/09/2017.
@@ -72,7 +73,20 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
-        return null;
+        int matcher = sUriMatcher.match(uri);
+        Log.d(LOG_TAG, "Match between URI and URI matcher: " + matcher);
+        switch (matcher) {
+            case PETS:
+                return insertPet(uri, contentValues);
+            default:
+                throw new IllegalArgumentException("Cannot query unknown URI " + uri);
+        }
+    }
+
+    private Uri insertPet(Uri uri, ContentValues contentValues) {
+        SQLiteDatabase databaseRead = mDbHelper.getWritableDatabase();
+        long rowId = databaseRead.insert(PetContract.PetEntry.TABLE_NAME, null, contentValues);
+        return ContentUris.withAppendedId(uri, rowId);
     }
 
     /**

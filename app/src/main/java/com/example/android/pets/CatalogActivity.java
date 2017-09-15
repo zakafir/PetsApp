@@ -15,18 +15,19 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetDbHelper;
@@ -102,9 +103,8 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(COLUMN_PET_GENDER, GENDER_FEMALE);
         values.put(COLUMN_PET_WEIGHT, 20);
 
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
-        Log.d(LOG_TAG, "New row ID " + newRowId);
+        Uri newUriWithRowId = getContentResolver().insert(PetContract.PetEntry.CONTENT_URI, values);
+        Toast.makeText(getApplicationContext(), "Dummy Pet saved with row ID " + ContentUris.parseId(newUriWithRowId), Toast.LENGTH_LONG).show();
     }
 
     private void displayDatabaseInfo() {
@@ -141,19 +141,23 @@ public class CatalogActivity extends AppCompatActivity {
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
-            displayView.setText("The pets table contains : " + cursor.getCount() + " pets. \n");
-            while (cursor.moveToNext()) {
-                displayView.append("\n _ID: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry._ID)) +
-                        "\n -Name: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)) +
-                        "\n -Breed: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)) +
-                        "\n -Gender: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER)) +
-                        "\n -Weight: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)) +
-                        "\n ---------------------------------");
+            if (cursor != null) {
+                displayView.setText("The pets table contains : " + cursor.getCount() + " pets. \n");
+                while (cursor.moveToNext()) {
+                    displayView.append("\n _ID: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry._ID)) +
+                            "\n -Name: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)) +
+                            "\n -Breed: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)) +
+                            "\n -Gender: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER)) +
+                            "\n -Weight: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)) +
+                            "\n ---------------------------------");
+                }
             }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 }

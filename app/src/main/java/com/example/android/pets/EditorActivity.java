@@ -15,13 +15,13 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,7 +31,6 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
 
@@ -141,8 +140,13 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                insertPetData();
-                NavUtils.navigateUpFromSameTask(this);
+                if (mNameEditText.getText().toString().matches("") ||
+                        mWeightEditText.getText().toString().matches("")) {
+                    Toast.makeText(getApplicationContext(), "You have to fill all the infos ", Toast.LENGTH_LONG).show();
+                } else {
+                    insertPetData();
+                    NavUtils.navigateUpFromSameTask(this);
+                }
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
@@ -164,14 +168,11 @@ public class EditorActivity extends AppCompatActivity {
         values.put(COLUMN_PET_WEIGHT, Integer.parseInt(mWeightEditText.getText().toString().trim()));
         values.put(COLUMN_PET_GENDER, mGender);
 
-        mDbHelper = new PetDbHelper(this);
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        long newRowId = db.insert(PetContract.PetEntry.TABLE_NAME, null, values);
-        Log.d(LOG_TAG, "New row ID " + newRowId);
-        if (newRowId == -1) {
+        Uri newUriWithRowId = getContentResolver().insert(PetEntry.CONTENT_URI, values);
+        if (ContentUris.parseId(newUriWithRowId) == -1) {
             Toast.makeText(getApplicationContext(), "an error occurred ", Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(getApplicationContext(), "Pet saved with row ID " + newRowId, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Pet saved with row ID " + ContentUris.parseId(newUriWithRowId), Toast.LENGTH_LONG).show();
         }
     }
 }
