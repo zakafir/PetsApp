@@ -1,6 +1,7 @@
 package com.example.android.pets.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -13,11 +14,21 @@ import android.net.Uri;
 
 public class PetProvider extends ContentProvider {
 
-    /** Tag for the log messages */
+    /**
+     * Tag for the log messages
+     */
     public static final String LOG_TAG = PetProvider.class.getSimpleName();
+    //for our query method
+    private static final int PETS = 100;
+    private static final int PET_ID = 101;
+    private static final UriMatcher sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+    static {
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS, PETS);
+        sUriMatcher.addURI(PetContract.CONTENT_AUTHORITY, PetContract.PATH_PETS + "/#", PET_ID);
+    }
 
     public PetDbHelper mDbHelper;
-    public UriMatcher mUriMatcher;
 
     /**
      * Initialize the provider and the database helper object.
@@ -36,15 +47,24 @@ public class PetProvider extends ContentProvider {
                         String sortOrder) {
 
         SQLiteDatabase database = mDbHelper.getReadableDatabase();
-        int a = mUriMatcher.match(uri);
-        switch (a){
-            case 1:
-                database.query(PetContract.PetEntry.TABLE_NAME,projection,selection,selectionArgs,null,null,sortOrder);
+        Cursor cursor;
+        int matcher = sUriMatcher.match(uri);
+        switch (matcher) {
+            case PETS:
+                cursor = database.query(PetContract.PetEntry.TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
-            case 2:
+
+            case PET_ID:
+                selection = PetContract.PetEntry._ID + "=?";
+                selectionArgs = new String[]{String.valueOf(ContentUris.parseId(uri))};
+                cursor = database.query(PetContract.PetEntry.TABLE_NAME, projection, selection, selectionArgs,
+                        null, null, sortOrder);
                 break;
+            default:
+                throw new IllegalArgumentException("Cannot query unknown URI " + uri);
         }
-        return null;
+        return cursor;
     }
 
     /**

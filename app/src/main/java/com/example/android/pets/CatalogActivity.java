@@ -108,15 +108,6 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void displayDatabaseInfo() {
-
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-
-
-        // Create and/or open a database to read from it
-        //it's similar to .open terminal command to open or create a database
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
-
         // Define a projection that specifies which columns from the database
         String[] projection = {
                 PetContract.PetEntry._ID,
@@ -129,7 +120,9 @@ public class CatalogActivity extends AppCompatActivity {
         String sortOrderBy =
                 PetContract.PetEntry._ID + " ASC";
 
-        Cursor cursor = db.query(
+        //we don't need to interact with the database directly from our Activity
+        //So, we use a ContentResolver instead
+        /*Cursor cursor = db.query(
                 PetContract.PetEntry.TABLE_NAME,
                 projection,                         //make it "null" to select all columns
                 null,
@@ -137,19 +130,26 @@ public class CatalogActivity extends AppCompatActivity {
                 null,
                 null,
                 sortOrderBy
-        );
+        );*/
+
+        Cursor cursor = getContentResolver().query(
+                PetContract.PetEntry.CONTENT_URI,
+                projection,                         //make it "null" to select all columns
+                null,
+                null,
+                sortOrderBy);
         try {
             // Display the number of rows in the Cursor (which reflects the number of rows in the
             // pets table in the database).
-            displayView.setText("The pets table contains : " + cursor.getCount()+" pets. \n");
-                while (cursor.moveToNext()){
-                    displayView.append("\n _ID: "+cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry._ID)) +
-                            "\n -Name: "+cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)) +
-                            "\n -Breed: "+cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)) +
-                            "\n -Gender: "+cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER)) +
-                            "\n -Weight: "+cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)) +
-                            "\n ---------------------------------");
-                }
+            displayView.setText("The pets table contains : " + cursor.getCount() + " pets. \n");
+            while (cursor.moveToNext()) {
+                displayView.append("\n _ID: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry._ID)) +
+                        "\n -Name: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)) +
+                        "\n -Breed: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)) +
+                        "\n -Gender: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER)) +
+                        "\n -Weight: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)) +
+                        "\n ---------------------------------");
+            }
         } finally {
             // Always close the cursor when you're done reading from it. This releases all its
             // resources and makes it invalid.
