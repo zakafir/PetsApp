@@ -102,7 +102,15 @@ public class PetProvider extends ContentProvider {
      */
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase database = mDbHelper.getReadableDatabase();
+        int matcher = sUriMatcher.match(uri);
+        switch (matcher) {
+            case PETS:
+                return database.delete(PetContract.PetEntry.TABLE_NAME, null, null);
+
+            default:
+                throw new IllegalArgumentException("Cannot query unknown URI " + uri);
+        }
     }
 
     /**

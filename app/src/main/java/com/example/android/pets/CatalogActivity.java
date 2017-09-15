@@ -90,10 +90,16 @@ public class CatalogActivity extends AppCompatActivity {
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.action_delete_all_entries:
-                // Do nothing for now
+                dropTable();
+                displayDatabaseInfo();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void dropTable() {
+        int deleted = getContentResolver().delete(PetContract.PetEntry.CONTENT_URI,null,null);
+        Toast.makeText(getApplicationContext(), "Deleting " + deleted, Toast.LENGTH_LONG).show();
     }
 
     private void insertDummyPetData() {
