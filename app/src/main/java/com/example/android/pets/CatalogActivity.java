@@ -26,10 +26,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
+import com.example.android.pets.data.PetCursorAdapter;
 import com.example.android.pets.data.PetDbHelper;
 
 import static com.example.android.pets.data.PetContract.PetEntry.COLUMN_PET_BREED;
@@ -51,7 +53,7 @@ public class CatalogActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
-        displayView = (TextView) findViewById(R.id.text_view_pet);
+        //displayView = (TextView) findViewById(R.id.text_view_pet);
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +100,7 @@ public class CatalogActivity extends AppCompatActivity {
     }
 
     private void dropTable() {
-        int deleted = getContentResolver().delete(PetContract.PetEntry.CONTENT_URI,null,null);
+        int deleted = getContentResolver().delete(PetContract.PetEntry.CONTENT_URI, null, null);
         Toast.makeText(getApplicationContext(), "Deleting " + deleted, Toast.LENGTH_LONG).show();
     }
 
@@ -144,26 +146,9 @@ public class CatalogActivity extends AppCompatActivity {
                 null,
                 null,
                 sortOrderBy);
-        try {
-            // Display the number of rows in the Cursor (which reflects the number of rows in the
-            // pets table in the database).
-            if (cursor != null) {
-                displayView.setText("The pets table contains : " + cursor.getCount() + " pets. \n");
-                while (cursor.moveToNext()) {
-                    displayView.append("\n _ID: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry._ID)) +
-                            "\n -Name: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_NAME)) +
-                            "\n -Breed: " + cursor.getString(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_BREED)) +
-                            "\n -Gender: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_GENDER)) +
-                            "\n -Weight: " + cursor.getInt(cursor.getColumnIndex(PetContract.PetEntry.COLUMN_PET_WEIGHT)) +
-                            "\n ---------------------------------");
-                }
-            }
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
+
+        PetCursorAdapter petAdapter = new PetCursorAdapter(this, cursor);
+        ListView listView = (ListView) findViewById(R.id.list_view_pets);
+        listView.setAdapter(petAdapter);
     }
 }
