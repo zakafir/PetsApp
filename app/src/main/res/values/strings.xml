@@ -70,5 +70,6 @@
     <string name="discard">Discard</string>
     <string name="keep_editing">Keep Editing</string>
     <string name="delete_all_pets">rows deleted from pet database</string>
+    <string name="unknown_breed">Unknown breed</string>
 
 </resources>
